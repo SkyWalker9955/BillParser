@@ -1,0 +1,28 @@
+﻿@page "/"
+@using BillParser.Client.Code
+@using System.IO
+@inject IBillParserService billParser
+
+<PageTitle>Bill Parser</PageTitle>
+
+@if (bill is null)
+{
+    <h1>Loading ...</h1>
+}
+else
+{
+    <Grid @ref="grid" TItem="Line">
+        <GridColumn TItem="Line" HeaderText="Phone Number">
+            @context.PhoneNumberPrefix @context.PhoneNumberSuffix
+        </GridColumn>
+    </Grid>
+}
+
+@code{
+    BlazorBootstrap.Grid<Line> grid = default!;
+    public Bill? bill {get; set;}
+
+    protected override void OnInitialized(){
+        bill = billParser.GenerateBill();
+    }
+}
