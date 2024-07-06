@@ -14,20 +14,20 @@
                 .ParseFileName();
         }
 
-        public static string[] Read(string path)
+        private static string[] Read(string path)
         {
             return Directory.GetFiles(Path.GetFullPath(path));
         }
 
-        public static bool HasOnlyOneFile(this string[] files)
+        private static bool HasOnlyOneFile(this string[] files)
         {
             if (files.Length > 1) return false;
             return true;
         }
 
-        public static string ParseFileName(this string str)
+        private static string ParseFileName(this string str)
         {
-            return str.Split("\\").Last();
+            return str.Split(['\\', '/']).Last();
         }
     }
 }

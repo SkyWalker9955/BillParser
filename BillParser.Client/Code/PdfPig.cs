@@ -8,12 +8,11 @@ namespace BillParser.Client.Code
     public static class PdfPig
     {
         #region Get Sections
-        public static IEnumerable<Word> GetSummarySection(string path, string fileName)
+        public static Task<IEnumerable<Word>> GetSummarySectionAsync(byte[] bytes)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(path);
-            ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+            if (bytes is null) throw new ArgumentNullException(nameof(bytes));
 
-            using PdfDocument document = PdfDocument.Open($"{path}\\{fileName}");
+            using PdfDocument document = PdfDocument.Open(bytes);
             var pageToReturn = 2;
 
             (string lowerBoudary, string upperBoundary) = ("SUMMARY", "CHARGES");
@@ -29,11 +28,11 @@ namespace BillParser.Client.Code
                 "CHARGES"
             ];
 
-            return document
+            return Task.FromResult(document
                 .GetPage(pageToReturn)
                 .GetWords()
                 .GetSummary(lowerBoudary, upperBoundary)
-                .CleanData(wordsToRemove);
+                .CleanData(wordsToRemove));
         }
 
         private static IEnumerable<Word> GetSummary(this IEnumerable<Word> words, string lowerBoudary, string upperBoundary)
@@ -61,12 +60,10 @@ namespace BillParser.Client.Code
 
             foreach(var item in totalsSection)
             {
-                if (item.Text.Contains('$'))
-                {
-                    var numberToken = item.Text.Split("$").Last().ToString();
-                    decimal num = decimal.Parse(numberToken);
-                    totals.Add(num);
-                }
+                if (!item.Text.Contains('$')) continue;
+                var numberToken = item.Text.Split("$").Last();
+                var num = decimal.Parse(numberToken);
+                totals.Add(num);
             }
             return new Totals
             {
@@ -116,26 +113,18 @@ namespace BillParser.Client.Code
             //Get correct charge amt for service
             var planChargeAmt = totals.Plans / lines.Count;
             List<Line> newLines = [];
-            
-            foreach (var line in lines)
+            newLines.AddRange(lines.Select(line => new Line
             {
-                newLines.Add(
-                    new Line
-                    {
-                        PhoneNumberPrefix = line.PhoneNumberPrefix,
-                        PhoneNumberSuffix = line.PhoneNumberSuffix,
-                        PlanAmt = Math.Round(planChargeAmt, 2),
-                        EquipmentAmt = Math.Round((decimal)line.EquipmentAmt!, 2),
-                        ServicesAmt = Math.Round((decimal)line.ServicesAmt!, 2),
-                        Total = Math.Round((decimal)(planChargeAmt + line!.EquipmentAmt + line!.ServicesAmt)!, 2)
-                    }
-                    );
-            }
+                PhoneNumberPrefix = line.PhoneNumberPrefix,
+                PhoneNumberSuffix = line.PhoneNumberSuffix,
+                PlanAmt = Math.Round(planChargeAmt, 2),
+                EquipmentAmt = Math.Round((decimal)line.EquipmentAmt!, 2),
+                ServicesAmt = Math.Round((decimal)line.ServicesAmt!, 2),
+                Total = Math.Round((decimal)(planChargeAmt + line!.EquipmentAmt + line!.ServicesAmt)!, 2)
+            }));
 
             return new Bill { Totals = totals, LinesList = newLines };
-
         }
-
         #endregion
     }
 }

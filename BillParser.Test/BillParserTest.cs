@@ -1,33 +1,36 @@
+using System.Diagnostics;
 using BillParser.Client.Code;
+using Xunit.Abstractions;
 
 namespace BillParser.Test
 {
-    public class BillParserTest
+    public class BillParserTest(ITestOutputHelper testOutputHelper)
     {
         [Fact]
         public void DirectoryReaderGetBillNameTest()
         {
-            var result = DirectoryReader.GetBillName("X:\\ProgramFiles\\EclipseIDE\\BillLocation");
+            var result = DirectoryReader.GetBillName("/home/mike/Documents/PhoneBill");
+            testOutputHelper.WriteLine(result);
+            Assert.NotEmpty(result);
+        }
+
+        [Fact]
+        public async Task GetSummarySectionTest()
+        {
+            var path = "/home/mike/Documents/PhoneBill";
+            var billName = "SummaryBillJun2024.pdf";
+            var str = new MemoryStream(File.ReadAllBytes(Path.Combine(path, billName)));
+            var result = await PdfPig.GetSummarySectionAsync(File.ReadAllBytes(Path.Combine(path, billName)));
 
             Assert.NotEmpty(result);
         }
 
         [Fact]
-        public void GetSummarySectionTest()
+        public async Task GetToatalsTest()
         {
-            var path = "X:\\ProgramFiles\\EclipseIDE\\BillLocation";
-            var billName = "SummaryBillFeb2024.pdf";
-            var result = PdfPig.GetSummarySection(path, billName);
-
-            Assert.NotEmpty(result);
-        }
-
-        [Fact]
-        public void GetToatalsTest()
-        {
-            var path = "X:\\ProgramFiles\\EclipseIDE\\BillLocation";
-            var billName = "SummaryBillFeb2024.pdf";
-            var summarySection = PdfPig.GetSummarySection(path, billName);
+            var path = "/home/mike/Documents/PhoneBill";
+            var billName = "SummaryBillJun2024.pdf";
+            var summarySection = await PdfPig.GetSummarySectionAsync(File.ReadAllBytes(Path.Combine(path, billName)));
 
             var result = summarySection.GetTotals();
 
@@ -35,22 +38,22 @@ namespace BillParser.Test
         }
 
         [Fact]
-        public void GetLinesTest()
+        public async Task GetLinesTest()
         {
-            var path = "X:\\ProgramFiles\\EclipseIDE\\BillLocation";
-            var billName = "SummaryBillFeb2024.pdf";
-            var summarySection = PdfPig.GetSummarySection(path, billName);
+            var path = "/home/mike/Documents/PhoneBill";
+            var billName = "SummaryBillJun2024.pdf";
+            var summarySection = await PdfPig.GetSummarySectionAsync(File.ReadAllBytes(Path.Combine(path, billName)));
 
             var result = summarySection.GetLines();
             Assert.True(result.GetType() == typeof(List<Line>));
         }
 
         [Fact]
-        public void GetBillTest()
+        public async Task GetBillTest()
         {
-            var path = "X:\\ProgramFiles\\EclipseIDE\\BillLocation";
-            var billName = "SummaryBillFeb2024.pdf";
-            var summarySection = PdfPig.GetSummarySection(path, billName);
+            var path = "/home/mike/Documents/PhoneBill";
+            var billName = "SummaryBillJun2024.pdf";
+            var summarySection = await PdfPig.GetSummarySectionAsync(File.ReadAllBytes(Path.Combine(path, billName)));
             var totals = summarySection.GetTotals();
             var lines = summarySection.GetLines();
 
@@ -58,9 +61,7 @@ namespace BillParser.Test
 
             Assert.NotNull(result);
             Assert.Equal(30, result.LinesList.First().PlanAmt);
-            Assert.Equal(46.39M, result.LinesList.First().Total);
+            Assert.Equal(46.34M, result.LinesList.First().Total);
         }
     }
-
-
 }
