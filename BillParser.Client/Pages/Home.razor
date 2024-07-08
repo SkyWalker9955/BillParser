@@ -6,40 +6,56 @@
 
 <PageTitle>Bill Parser</PageTitle>
 
-<h2>Upload bill summary</h2>
-<div>
+<h1 class="container text-center border-bottom pb-3">Bill Summary Parser</h1>
+
+<div class="container mt-5">
     <InputFile OnChange="@OnChange"></InputFile>
 </div>
 
-<div class="container">
+
+<div class="container border-bottom">
     <div class="row">
         <div class="col-4">
-            <QuickGrid Items="Lines" Class="">
-                <PropertyColumn Property="@(p => p.PhoneNumberPrefix)" Align="Align.End" Title="#Prefix"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.PhoneNumberSuffix)" Align="Align.Start" Title="#Suffix"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.PlanAmt)" Title="Plan"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.EquipmentAmt)" Title="Equipment"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.ServicesAmt)" Title="Service"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.Total)" Title="Total"></PropertyColumn>
-            </QuickGrid>
+            @if (Lines != null)
+            {
+                <div class="mt-3 mb-5">
+                    <QuickGrid Items="Lines" Class="table table-bordered table-striped">
+                        <PropertyColumn Property="@(p => p.PhoneNumberPrefix)" Align="Align.End" Title="#Prefix"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.PhoneNumberSuffix)" Align="Align.Start" Title="#Suffix"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.PlanAmt)" Title="Plan"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.EquipmentAmt)" Title="Equipment"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.ServicesAmt)" Title="Service"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.Total)" Title="Total"></PropertyColumn>
+                    </QuickGrid>
+                </div>
+            }
+            else
+            {
+                <div class="text-center mt-3 mb-5">
+                    <h4>Upload a File to Begin Parsing</h4>
+                </div>
+            }
         </div>
     </div>
 </div>
 
-
-<div>
+<div class="container mt-4">
     @if (Totals is null)
     {
-        <div>Data not ready!</div>
+        <h2>Totals</h2>
+        <p><b>Plans:</b> 0</p>
+        <p><b>Equipment:</b> 0</p>
+        <p><b>Service:</b> 0</p>
+        <p><b class="border">TOTAL: 0</b></p>
     }
     else
     {
 
-            <h2>Totals</h2>
-            <p>Plans: @Totals.Plans</p>
-            <p>Equipment: @Totals.Equipment</p>
-            <p>Service: @Totals.Services</p>
-            <p>TOTAL: @Totals.Total</p>
+        <h2>Totals</h2>
+        <p><b>Plans:</b> @Totals.Plans</p>
+        <p><b>Equipment:</b> @Totals.Equipment</p>
+        <p><b>Service:</b> @Totals.Services</p>
+        <p><b class="border">TOTAL: @Totals.Total</b></p>
     }
 </div>
 
@@ -66,4 +82,5 @@
         Totals = Bill.Totals;
         StateHasChanged();
     }
+    
 }
