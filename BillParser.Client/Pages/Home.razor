@@ -12,6 +12,22 @@
     <InputFile OnChange="@OnChange"></InputFile>
 </div>
 
+<div class="container">
+    @if (isLoading)
+    {
+        <div class="spinner-border text-primary mt-3 mb-5" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    }
+    else if (Lines == null)
+    {
+        <div class="mt-3 mb-5">
+            <h4>Upload a File to Begin Parsing</h4>
+        </div>
+    }
+</div>
+
+
 
 <div class="container border-bottom">
     <div class="row">
@@ -31,9 +47,7 @@
             }
             else
             {
-                <div class="text-center mt-3 mb-5">
-                    <h4>Upload a File to Begin Parsing</h4>
-                </div>
+                <div></div>
             }
         </div>
     </div>
@@ -59,28 +73,33 @@
     }
 </div>
 
-@code{
+@code {
     BlazorBootstrap.Grid<Line> grid = default!;
-    private Bill? Bill {get; set;}
+    private Bill? Bill { get; set; }
     public IQueryable<Line>? Lines = null;
     private Totals? Totals = null;
-    
+    private bool isLoading = false;
 
     private async void OnChange(InputFileChangeEventArgs e)
     {
+        isLoading = true;
+        StateHasChanged();
+
         if (e.GetMultipleFiles().Count > 1)
         {
             throw new NotImplementedException("Multiple files are not supported yet.");
         }
+
         var file = e.File;
         var stream = file.OpenReadStream();
         var str = new MemoryStream();
         await stream.CopyToAsync(str);
-        
+
         Bill = await BillParser.GenerateBillAsync(str.ToArray());
         Lines = Bill.LinesList.AsQueryable();
         Totals = Bill.Totals;
+        isLoading = false;
         StateHasChanged();
     }
-    
+
 }
