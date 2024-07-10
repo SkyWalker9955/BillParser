@@ -6,64 +6,100 @@
 
 <PageTitle>Bill Parser</PageTitle>
 
-<h2>Upload bill summary</h2>
-<div>
+<h1 class="container text-center border-bottom pb-3">Bill Summary Parser</h1>
+
+<div class="container mt-5">
     <InputFile OnChange="@OnChange"></InputFile>
 </div>
 
 <div class="container">
+    @if (isLoading)
+    {
+        <div class="spinner-border text-primary mt-3 mb-5" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    }
+    else if (Lines == null)
+    {
+        <div class="mt-3 mb-5">
+            <h4>Upload a File to Begin Parsing</h4>
+        </div>
+    }
+</div>
+
+
+
+<div class="container border-bottom">
     <div class="row">
         <div class="col-4">
-            <QuickGrid Items="Lines" Class="">
-                <PropertyColumn Property="@(p => p.PhoneNumberPrefix)" Align="Align.End" Title="#Prefix"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.PhoneNumberSuffix)" Align="Align.Start" Title="#Suffix"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.PlanAmt)" Title="Plan"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.EquipmentAmt)" Title="Equipment"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.ServicesAmt)" Title="Service"></PropertyColumn>
-                <PropertyColumn Property="@(p => p.Total)" Title="Total"></PropertyColumn>
-            </QuickGrid>
+            @if (Lines != null)
+            {
+                <div class="mt-3 mb-5">
+                    <QuickGrid Items="Lines" Class="table table-bordered table-striped">
+                        <PropertyColumn Property="@(p => p.PhoneNumberPrefix)" Align="Align.End" Title="#Prefix"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.PhoneNumberSuffix)" Align="Align.Start" Title="#Suffix"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.PlanAmt)" Title="Plan"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.EquipmentAmt)" Title="Equipment"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.ServicesAmt)" Title="Service"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.Total)" Title="Total"></PropertyColumn>
+                    </QuickGrid>
+                </div>
+            }
+            else
+            {
+                <div></div>
+            }
         </div>
     </div>
 </div>
 
-
-<div>
+<div class="container mt-4">
     @if (Totals is null)
     {
-        <div>Data not ready!</div>
+        <h2>Totals</h2>
+        <p><b>Plans:</b> 0</p>
+        <p><b>Equipment:</b> 0</p>
+        <p><b>Service:</b> 0</p>
+        <p><b class="border">TOTAL: 0</b></p>
     }
     else
     {
 
-            <h2>Totals</h2>
-            <p>Plans: @Totals.Plans</p>
-            <p>Equipment: @Totals.Equipment</p>
-            <p>Service: @Totals.Services</p>
-            <p>TOTAL: @Totals.Total</p>
+        <h2>Totals</h2>
+        <p><b>Plans:</b> @Totals.Plans</p>
+        <p><b>Equipment:</b> @Totals.Equipment</p>
+        <p><b>Service:</b> @Totals.Services</p>
+        <p><b class="border">TOTAL: @Totals.Total</b></p>
     }
 </div>
 
-@code{
+@code {
     BlazorBootstrap.Grid<Line> grid = default!;
-    private Bill? Bill {get; set;}
+    private Bill? Bill { get; set; }
     public IQueryable<Line>? Lines = null;
     private Totals? Totals = null;
-    
+    private bool isLoading = false;
 
     private async void OnChange(InputFileChangeEventArgs e)
     {
+        isLoading = true;
+        StateHasChanged();
+
         if (e.GetMultipleFiles().Count > 1)
         {
             throw new NotImplementedException("Multiple files are not supported yet.");
         }
+
         var file = e.File;
         var stream = file.OpenReadStream();
         var str = new MemoryStream();
         await stream.CopyToAsync(str);
-        
+
         Bill = await BillParser.GenerateBillAsync(str.ToArray());
         Lines = Bill.LinesList.AsQueryable();
         Totals = Bill.Totals;
+        isLoading = false;
         StateHasChanged();
     }
+
 }

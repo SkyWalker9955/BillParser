@@ -25,4 +25,8 @@
     <Folder Include="wwwroot\sample-data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\home.css" />
+  </ItemGroup>
+
 </Project>
