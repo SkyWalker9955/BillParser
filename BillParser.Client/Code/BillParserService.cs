@@ -9,7 +9,7 @@ namespace BillParser.Client.Code
 
     public class BillParserService(IConfiguration config) : IBillParserService
     {
-        private readonly IConfiguration config = config;
+        private readonly IConfiguration _config = config;
 
         public async Task<Bill> GenerateBillAsync(byte[] bytes)
         {
@@ -17,11 +17,11 @@ namespace BillParser.Client.Code
             var billData = await PdfPig.GetSummarySectionAsync(bytes);
 
             //Step 2: Get Totals and Get Lines
-            var totals = billData.GetTotals();
-            var lines = billData.GetLines();
+            var totals = Totals.From(billData);
+            var lines = Line.From(billData);
 
             //Step 3: Get bill
-            return PdfPig.GetBill(totals, lines);
+            return Bill.From(totals, lines);
         }
     }
 }
