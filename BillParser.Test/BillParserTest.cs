@@ -14,6 +14,18 @@ namespace BillParser.Test
         }
 
         [Fact]
+        public async Task ChechIfTotalsMatchAsync()
+        {
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "SummaryBillOct2024.pdf");
+            var summarySection = await PdfPig.GetSummarySectionAsync(await File.ReadAllBytesAsync(path));
+            var totals = Totals.From(summarySection);
+            var lines = Line.From(summarySection);
+
+            var result = Bill.From(totals, lines);
+            Assert.Equal(345.57M, result.Totals.Total);
+        }
+
+        [Fact]
         public async Task GetSummarySectionTest()
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);

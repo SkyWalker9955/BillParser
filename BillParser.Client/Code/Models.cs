@@ -9,6 +9,7 @@ namespace BillParser.Client.Code
         public required decimal PlanAmt { get; init; }
         public decimal? EquipmentAmt { get; init; }
         public decimal? ServicesAmt { get; init; }
+        public decimal? OneTimeChargeAmt { get; set; }
         public decimal Total { get; init; }
 
         private static Line FromWords(List<Word> words)
@@ -20,7 +21,8 @@ namespace BillParser.Client.Code
                 PlanAmt = ParseAmount(words[2].Text),
                 EquipmentAmt = ParseAmount(words[3].Text),
                 ServicesAmt = ParseAmount(words[4].Text),
-                Total = ParseAmount(words[5].Text)
+                OneTimeChargeAmt = ParseAmount(words[5].Text),
+                Total = ParseAmount(words[6].Text)
             };
         }
         
@@ -41,7 +43,7 @@ namespace BillParser.Client.Code
 
             return linesSection
                 .Chunk(lineRecordLength)
-                .Select(ch => Line.FromWords([.. ch])).ToList();
+                .Select(ch => FromWords([.. ch])).ToList();
         }
     }
 
@@ -50,6 +52,7 @@ namespace BillParser.Client.Code
         public decimal Plans { get; init; }
         public decimal Equipment { get; init; }
         public decimal Services { get; init; }
+        public decimal OneTimeCharges { get; set; }
         public decimal Total { get; init; }
 
         public static Totals From(IEnumerable<Word> words)
@@ -72,7 +75,8 @@ namespace BillParser.Client.Code
                 Plans = totals[0],
                 Equipment = totals[1],
                 Services = totals[2],
-                Total = totals[3]
+                OneTimeCharges = totals[3],
+                Total = totals[4]
             };
         }
     }
@@ -94,7 +98,8 @@ namespace BillParser.Client.Code
                 PlanAmt = Math.Round(planChargeAmt, 2),
                 EquipmentAmt = Math.Round((decimal)line.EquipmentAmt!, 2),
                 ServicesAmt = Math.Round((decimal)line.ServicesAmt!, 2),
-                Total = Math.Round((decimal)(planChargeAmt + line!.EquipmentAmt + line!.ServicesAmt)!, 2)
+                OneTimeChargeAmt = Math.Round((decimal)line.OneTimeChargeAmt!, 2),
+                Total = Math.Round((decimal)(planChargeAmt + line!.EquipmentAmt + line!.ServicesAmt + line!.OneTimeChargeAmt)!, 2)
             }));
 
             return new Bill { Totals = totals, LinesList = newLines };

@@ -41,6 +41,7 @@
                         <PropertyColumn Property="@(p => p.PlanAmt)" Title="Plan"></PropertyColumn>
                         <PropertyColumn Property="@(p => p.EquipmentAmt)" Title="Equipment"></PropertyColumn>
                         <PropertyColumn Property="@(p => p.ServicesAmt)" Title="Service"></PropertyColumn>
+                        <PropertyColumn Property="@(p => p.OneTimeChargeAmt)" Title="One-time Charges"></PropertyColumn>
                         <PropertyColumn Property="@(p => p.Total)" Title="Total"></PropertyColumn>
                     </QuickGrid>
                 </div>
@@ -60,6 +61,7 @@
         <p><b>Plans:</b> 0</p>
         <p><b>Equipment:</b> 0</p>
         <p><b>Service:</b> 0</p>
+        <p><b>One-time Charges:</b> 0</p>
         <p><b class="border">TOTAL: 0</b></p>
     }
     else
@@ -69,6 +71,7 @@
         <p><b>Plans:</b> @Totals.Plans</p>
         <p><b>Equipment:</b> @Totals.Equipment</p>
         <p><b>Service:</b> @Totals.Services</p>
+        <p><b>One-time Charges:</b> @Totals.OneTimeCharges</p>
         <p><b class="border">TOTAL: @Totals.Total</b></p>
     }
 </div>
