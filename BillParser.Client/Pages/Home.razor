@@ -94,7 +94,7 @@
         }
 
         var file = e.File;
-        var stream = file.OpenReadStream();
+        var stream = file.OpenReadStream(maxAllowedSize: 1512000L);
         var str = new MemoryStream();
         await stream.CopyToAsync(str);
 
