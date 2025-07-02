@@ -30,7 +30,7 @@ namespace BillParser.Client.Code
         {
             if (amt.ToUpper() is "INCLUDED" or "-")
             {
-                amt = new string("0.00");
+                amt = "0.00";
             }
             return decimal.Parse(amt.Split("$").Last().ToString());
         }
