@@ -88,7 +88,7 @@ namespace BillParser.Client.Code
 
         public static Bill From(Totals totals, List<Line> lines)
         {
-            //Get correct charge amt for service
+            // Calculate plan charge per line
             var planChargeAmt = totals.Plans / lines.Count;
             List<Line> newLines = [];
             newLines.AddRange(lines.Select(line => new Line
